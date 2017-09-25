@@ -69,8 +69,6 @@ tf.flags.DEFINE_integer("checkpoint_interval", -1,
 # Model Options
 tf.flags.DEFINE_string("model", "DNC",
                        "Model to train on this copy repeat task.")
-tf.flags.DEFINE_integer("LSTM_size", 9,
-                        "Number of LSTM units")
 
 
 def run_model(input_sequence, output_size):
@@ -99,7 +97,7 @@ def run_model(input_sequence, output_size):
       return output_sequence
 
   elif(FLAGS.model == "LSTM"):
-      lstm_core = tf.nn.rnn_cell.LSTMCell(FLAGS.LSTM_size)
+      lstm_core = tf.nn.rnn_cell.LSTMCell(FLAGS.num_bits+1)
       initial_state = lstm_core.zero_state(FLAGS.batch_size, dtype=tf.float32)
       output_sequence, _ = tf.nn.dynamic_rnn(
           cell=lstm_core,
