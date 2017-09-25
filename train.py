@@ -66,6 +66,13 @@ tf.flags.DEFINE_integer("checkpoint_interval", -1,
                         "Checkpointing step interval.")
 
 
+# Model Options
+tf.flags.DEFINE_string("model", "DNC",
+                       "Model to train on this copy repeat task.")
+tf.flags.DEFINE_integer("LSTM_size", 9,
+                        "Number of LSTM units")
+
+
 def run_model(input_sequence, output_size):
   """Runs model on input sequence."""
 
@@ -80,15 +87,28 @@ def run_model(input_sequence, output_size):
   }
   clip_value = FLAGS.clip_value
 
-  dnc_core = dnc.DNC(access_config, controller_config, output_size, clip_value)
-  initial_state = dnc_core.initial_state(FLAGS.batch_size)
-  output_sequence, _ = tf.nn.dynamic_rnn(
-      cell=dnc_core,
-      inputs=input_sequence,
-      time_major=True,
-      initial_state=initial_state)
+  if(FLAGS.model == "DNC"):
+      dnc_core = dnc.DNC(access_config, controller_config, output_size, clip_value)
+      initial_state = dnc_core.initial_state(FLAGS.batch_size)
+      output_sequence, _ = tf.nn.dynamic_rnn(
+          cell=dnc_core,
+          inputs=input_sequence,
+          time_major=True,
+          initial_state=initial_state)
 
-  return output_sequence
+      return output_sequence
+
+  elif(FLAGS.model == "LSTM"):
+      lstm_core = tf.nn.rnn_cell.LSTMCell(FLAGS.LSTM_size)
+      initial_state = lstm_core.zero_state(FLAGS.batch_size, dtype=tf.float32)
+      output_sequence, _ = tf.nn.dynamic_rnn(
+          cell=lstm_core,
+          inputs=input_sequence,
+          time_major=True,
+          initial_state=initial_state)
+
+      return output_sequence
+
 
 
 def train(num_training_iterations, report_interval):
