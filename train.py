@@ -24,6 +24,8 @@ import sonnet as snt
 import dnc
 import repeat_copy
 
+from model import GraphPolicy
+
 FLAGS = tf.flags.FLAGS
 
 # Model parameters
